@@ -74,7 +74,7 @@ const Home: NextPage<HomeProps> = ({
             </h1>
 
             <div className="relative bg-slate-300 dark:bg-slate-700 px-5 shadow-xl py-12 h-[80vh] w-[90vw] max-w-[22rem] max-h-[33rem] flex flex-col justify-center items-center rounded-lg hover:scale-[1.02] transition-all overflow-scroll">
-                <div className="w-full flex justify-center mb-10">
+                <div className="w-full flex justify-center mb-10 overflow-visible">
                     <QRCode
                         value={qrValue}
                         className="rounded-lg"
