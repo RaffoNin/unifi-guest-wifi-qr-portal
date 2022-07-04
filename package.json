@@ -6,13 +6,17 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint", 
+    "lint": "next lint",
     "lint-fix": "eslint --fix --ext .js,.jsx,.ts,.tsx ."
   },
   "dependencies": {
+    "axios": "^0.27.2",
     "next": "12.2.0",
+    "node-unifi": "^2.1.0",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "react-qr-code": "^2.0.7",
+    "spinners-react": "^1.0.7"
   },
   "devDependencies": {
     "@types/node": "18.0.1",
@@ -20,13 +24,16 @@
     "@types/react-dom": "18.0.5",
     "@typescript-eslint/eslint-plugin": "^5.30.4",
     "@typescript-eslint/parser": "^5.30.4",
+    "autoprefixer": "^10.4.7",
     "eslint": ">=5.16.0",
     "eslint-config-google": "^0.14.0",
     "eslint-config-next": "^12.2.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-react": "^7.30.1",
+    "postcss": "^8.4.14",
     "prettier": "2.7.1",
+    "tailwindcss": "^3.1.4",
     "typescript": "4.7.4"
   }
 }
