@@ -72,7 +72,7 @@ const WifiIDList: React.FC<WifiIDListProps> = ({allWifiId}) => {
         <div className="font-mono min-h-screen h-full w-screen flex justify-center items-center flex-col bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-200 gap-y-5 px-10  py-10 overflow-y-auto">
             <h1 className="text-4xl font-semibold mb-10">Wifi IDs</h1>
             <p className="text-sm text-center italic opacity-70 hover:opacity-100 mb-2 group">
-                Get guest wifi ID and add it to env variable as{' '}
+                Get guest wifi ID and add it to env variables as{' '}
                 <b className="group-hover:text-emerald-500 dark:group-hover:text-emerald-400">
                     UNIFI_GUEST_NETWORK_ID
                 </b>
