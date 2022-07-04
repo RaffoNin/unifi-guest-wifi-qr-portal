@@ -11,17 +11,56 @@ import {IWlanSettings} from '../types/unifi/unifi-types';
 import getTailwindColor from '../lib/tailwind/getTailwindColor';
 
 export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
+    if (
+        !process.env.UNIFI_CONTROLLER_HOST ||
+        !process.env.UNIFI_CONTROLLER_PORT ||
+        !process.env.UNIFI_CONTROLLER_USERNAME ||
+        !process.env.UNIFI_CONTROLLER_PASSWORD
+    ) {
+        console.error(`Incomplete env variales: 
+        host: ${process.env.UNIFI_CONTROLLER_HOST}
+        port: ${process.env.UNIFI_CONTROLLER_PORT}
+        username: ${process.env.UNIFI_CONTROLLER_USERNAME}
+        password: ${process.env.UNIFI_CONTROLLER_PASSWORD}
+        `);
+        return {
+            notFound: true,
+        };
+    }
+
+    if (!process.env.UNIFI_GUEST_NETWORK_ID) {
+        return {
+            props: {},
+            redirect: {
+                destination: '/list-wifi-id',
+                permanent: true,
+            },
+        };
+    }
+
     await unifiLogin();
     const guestWifiState: IWlanSettings[] = await unifi.getWLanSettings(
         process.env.UNIFI_GUEST_NETWORK_ID
     );
 
     if (guestWifiState.length === 0) {
-        throw new Error('Guest wifi ID could not be found in the controller');
+        console.error(
+            `Wifi code with ID: ${process.env.UNIFI_GUEST_NETWORK_ID} could not be found`
+        );
+        return {
+            notFound: true,
+            permanent: true,
+        };
     }
 
     if (guestWifiState.length > 1) {
-        throw new Error('There are two APs in the controller with the same ID');
+        console.error(
+            `Wifi code with ID: ${process.env.UNIFI_GUEST_NETWORK_ID} has conflicting IDs with the Unifi Controller. Check unifi controller`
+        );
+        return {
+            notFound: true,
+            permanent: true,
+        };
     }
 
     return {
@@ -63,17 +102,17 @@ const Home: NextPage<HomeProps> = ({
     }, [networkName, password, isHidden, securityProtocolConverted]);
 
     return (
-        <div className="font-mono h-screen w-screen flex justify-center items-center flex-col bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-200 overflow-hidden">
+        <div className="font-mono min-h-screen h-full w-screen flex justify-center items-center flex-col bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-200 overflow-hidden">
             <Head>
                 <title>Guest Wifi</title>
                 <meta name="Guest wifi info" />
             </Head>
 
-            <h1 className="dark:text-slate-100 text-black text-4xl font-semibold mb-10 font-mono">
+            <h1 className="text-slate-800 dark:text-slate-100 text-4xl font-semibold mb-10 font-mono">
                 Guest Wifi
             </h1>
 
-            <div className="relative bg-slate-300 dark:bg-slate-700 px-5 shadow-xl py-12 h-[80vh] w-[90vw] max-w-[22rem] max-h-[33rem] flex flex-col justify-center items-center rounded-lg hover:scale-[1.02] transition-all overflow-scroll">
+            <div className="relative bg-slate-300 dark:bg-slate-700 px-5 shadow-xl py-12 h-[80vh] w-[90vw] max-w-[22rem] max-h-[33rem] flex flex-col justify-center items-center rounded-lg hover:scale-[1.02] transition-all overflow-auto">
                 <div className="w-full flex justify-center mb-10 overflow-visible">
                     <QRCode
                         value={qrValue}
