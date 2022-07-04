@@ -14,7 +14,7 @@ const TextLabel: React.FC<TextLabelProps> = ({title, body}) => {
             <h4
                 ref={bodyRef}
                 onMouseOver={() => bodyRef.current?.focus()}
-                className="font-semibold hover:text-emerald-600 dark:hover:text-emerald-400 cursor-pointer"
+                className="font-semibold hover:text-emerald-600 dark:hover:text-emerald-400"
             >
                 {body}
             </h4>
