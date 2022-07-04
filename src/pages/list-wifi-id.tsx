@@ -11,19 +11,13 @@ export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
         !process.env.UNIFI_CONTROLLER_USERNAME ||
         !process.env.UNIFI_CONTROLLER_PASSWORD
     ) {
-        console.error(`Incomplete env variales: 
+        throw new Error(`Incomplete env variales: 
         host: ${process.env.UNIFI_CONTROLLER_HOST}
         port: ${process.env.UNIFI_CONTROLLER_PORT}
         username: ${process.env.UNIFI_CONTROLLER_USERNAME}
         password: ${process.env.UNIFI_CONTROLLER_PASSWORD}
         `);
-        return {
-            notFound: true,
-        };
     }
-
-    await unifiLogin();
-    const guestWifiState: IWlanSettings[] = await unifi.getWLanSettings();
 
     if (process.env.UNIFI_GUEST_NETWORK_ID) {
         return {
@@ -35,17 +29,23 @@ export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
         };
     }
 
-    const formattedWifiArray = guestWifiState.map((wifi) => ({
-        name: wifi.name,
-        id: wifi._id,
-        enabled: wifi.enabled,
-    }));
+    try {
+        await unifiLogin();
+        const guestWifiState: IWlanSettings[] = await unifi.getWLanSettings();
+        const formattedWifiArray = guestWifiState.map((wifi) => ({
+            name: wifi.name,
+            id: wifi._id,
+            enabled: wifi.enabled,
+        }));
 
-    return {
-        props: {
-            allWifiId: formattedWifiArray,
-        },
-    };
+        return {
+            props: {
+                allWifiId: formattedWifiArray,
+            },
+        };
+    } catch (error) {
+        throw new Error(`${error}`);
+    }
 };
 
 interface WifiIDListProps {

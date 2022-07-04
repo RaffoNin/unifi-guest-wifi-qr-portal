@@ -23,9 +23,13 @@ export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
         username: ${process.env.UNIFI_CONTROLLER_USERNAME}
         password: ${process.env.UNIFI_CONTROLLER_PASSWORD}
         `);
-        return {
-            notFound: true,
-        };
+
+        throw new Error(`Incomplete env variales: 
+        host: ${process.env.UNIFI_CONTROLLER_HOST}
+        port: ${process.env.UNIFI_CONTROLLER_PORT}
+        username: ${process.env.UNIFI_CONTROLLER_USERNAME}
+        password: ${process.env.UNIFI_CONTROLLER_PASSWORD}
+        `);
     }
 
     if (!process.env.UNIFI_GUEST_NETWORK_ID) {
@@ -44,23 +48,15 @@ export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
     );
 
     if (guestWifiState.length === 0) {
-        console.error(
+        throw new Error(
             `Wifi code with ID: ${process.env.UNIFI_GUEST_NETWORK_ID} could not be found`
         );
-        return {
-            notFound: true,
-            permanent: true,
-        };
     }
 
     if (guestWifiState.length > 1) {
-        console.error(
+        throw new Error(
             `Wifi code with ID: ${process.env.UNIFI_GUEST_NETWORK_ID} has conflicting IDs with the Unifi Controller. Check unifi controller`
         );
-        return {
-            notFound: true,
-            permanent: true,
-        };
     }
 
     return {
@@ -75,18 +71,25 @@ export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
     };
 };
 
-interface HomeProps {
+type HomeProps = {
     guestWifiCredentials: {
         networkName: string;
         password: string;
         isHidden: boolean;
         securityProtocol: string;
     };
-}
+};
 
-const Home: NextPage<HomeProps> = ({
-    guestWifiCredentials: {networkName, password, isHidden, securityProtocol},
-}) => {
+const Home: NextPage<HomeProps> = ({...props}) => {
+    const {
+        guestWifiCredentials: {
+            isHidden,
+            networkName,
+            password,
+            securityProtocol,
+        },
+    } = props;
+
     const securityProtocolConverted = useMemo(() => {
         return getSecurityProtocol(securityProtocol);
     }, [securityProtocol]);
