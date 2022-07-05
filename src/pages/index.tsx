@@ -11,6 +11,7 @@ import {IWlanSettings} from '../types/unifi/unifi-types';
 import getTailwindColor from '../lib/tailwind/getTailwindColor';
 import {PageError} from '../lib/error/error-constructor';
 import {AxiosError} from 'axios';
+import isReachable from 'is-reachable';
 
 // @ts-ignore
 export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
@@ -43,6 +44,17 @@ export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
                     permanent: true,
                 },
             };
+        }
+
+        if (
+            (await isReachable(
+                `${process.env.UNIFI_CONTROLLER_HOST}:${process.env.UNIFI_CONTROLLER_PORT}`
+            )) === false
+        ) {
+            throw new PageError(
+                502,
+                'Could not access host. Check env variable or firewall.'
+            );
         }
 
         await unifiLogin();
@@ -80,9 +92,18 @@ export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
         };
     } catch (error) {
         if (error instanceof AxiosError) {
-            errorCode = error.response?.status || 502;
-            errorMessage =
-                error.response?.data || 'Could not log in to unifi controller';
+            if (error.code === 'ECONNREFUSED') {
+                errorCode = 502;
+                errorMessage =
+                    'Could not access host. Check env variable or firewall.';
+            } else {
+                errorCode = error.response?.status || 502;
+                errorMessage = error.response?.data
+                    ? typeof error.response.data === 'object'
+                        ? JSON.stringify(error.response.data)
+                        : error.response.data
+                    : 'Could not log in to unifi controller';
+            }
 
             console.error(`${errorCode}: ${errorMessage}`);
             return {
