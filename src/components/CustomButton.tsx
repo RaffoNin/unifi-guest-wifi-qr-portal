@@ -9,7 +9,7 @@ interface CustomButtonProp
 const CustomButton: React.FC<CustomButtonProp> = ({className, ...props}) => {
     return (
         <button
-            className={`font-mono py-2 px-4 rounded-lg bg-emerald-400 dark:bg-emerald-600 dark:hover:text-slate-300 hover:text-slate-100 dark:text-slate-900 hover:scale-105 transition-all active:scale-[1.02] ${className}`}
+            className={`font-mono py-2 px-4 rounded-lg bg-emerald-400 dark:bg-emerald-600 dark:hover:text-slate-300 hover:text-slate-100 dark:text-slate-900 hover:scale-105 transition-all active:scale-[1.02] disabled:opacity-60 disabled:hover:scale-100 ${className}`}
             {...props}
         />
     );
