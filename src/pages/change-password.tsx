@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import axios, {AxiosError} from 'axios';
 import Head from 'next/head';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import CustomButton from '../components/CustomButton';
 import TextLabel from '../components/TextLabel';
 import {PageError} from '../lib/error/error-constructor';
@@ -10,19 +10,14 @@ import {IWlanSettings} from '../types/unifi/unifi-types';
 
 // @ts-ignore
 export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
-    if (!process.env.CHANGE_WIFI_TOKEN) {
-        return {
-            redirect: {
-                destination: '/',
-                permanent: true,
-            },
-        };
-    }
-
     let errorCode: number;
     let errorMessage: string;
 
     try {
+        if (!process.env.CHANGE_WIFI_TOKEN) {
+            throw new PageError(404, '');
+        }
+
         if (
             !process.env.UNIFI_CONTROLLER_HOST ||
             !process.env.UNIFI_CONTROLLER_PORT ||
@@ -125,11 +120,18 @@ const change: React.FC<ChangePasswordProps> = ({
     const [token, setToken] = useState('');
     const [newPassword, setNewPassword] = useState('');
 
+    const [modalContent, setModalContent] = useState<{
+        type: 'error' | 'success' | null;
+        message: string;
+    }>({
+        type: null,
+        message: '',
+    });
+
     const handleFormSubmission = async (
         e: React.FormEvent<HTMLFormElement>
     ) => {
         e.preventDefault();
-        // return;
 
         try {
             await axios.post('/api/wifi/change-password', {
@@ -138,25 +140,74 @@ const change: React.FC<ChangePasswordProps> = ({
             });
             setNewPassword('');
             setToken('');
+            setModalContent({
+                type: 'success',
+                message: 'Wifi password changed',
+            });
         } catch (error) {
             if (error instanceof AxiosError) {
                 console.error(error.response?.status, error.response?.data);
-                return;
+                setModalContent({
+                    type: 'error',
+                    message: `Error: ${error.response?.data}`,
+                });
             }
             console.error(error);
         }
     };
 
+    useEffect(() => {
+        if (!modalContent) return;
+
+        const interval = setInterval(() => {
+            setModalContent({
+                message: '',
+                type: null,
+            });
+        }, 6000);
+
+        return () => clearInterval(interval);
+    }, [modalContent]);
+
+    useEffect(() => {
+        if (!newPassword) return;
+
+        setModalContent({
+            type: null,
+            message: '',
+        });
+    }, [newPassword]);
+
+    useEffect(() => {
+        if (!token) return;
+
+        setModalContent({
+            type: null,
+            message: '',
+        });
+    }, [token]);
+
     return (
         <div
-            className="
-    font-mono min-h-screen h-full w-screen flex justify-center items-center flex-col bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-200 overflow-hidden
+            className="relative font-mono min-h-screen h-full w-screen flex justify-center items-center flex-col bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-200 overflow-hidden
     "
         >
             <Head>
                 <title>Change Wifi Password</title>
                 <meta name="Change Wifi Password" />
             </Head>
+
+            {modalContent.type && (
+                <div
+                    className={`absolute bottom-20 bg-slate-300 dark:bg-slate-700 px-5 shadow-xl py-3 max-w-[60vw] md:max-w-sm flex flex-col justify-center items-center rounded-lg hover:scale-[1.02] transition-all overflow-auto gap-y-4 animate-fade-in ${
+                        modalContent.type === 'error'
+                            ? 'text-red-500'
+                            : 'text-emerald-500'
+                    }`}
+                >
+                    {modalContent.message}
+                </div>
+            )}
 
             <div className="relative bg-slate-300 dark:bg-slate-700 px-5 shadow-xl py-12 h-[80vh] w-[80vw] max-w-[20rem] max-h-[32rem] flex flex-col justify-center items-center rounded-lg hover:scale-[1.02] transition-all overflow-auto gap-y-4">
                 <h1 className="mb-10 text-2xl font-semibold">
@@ -222,10 +273,11 @@ const change: React.FC<ChangePasswordProps> = ({
                     </div>
 
                     <CustomButton
-                        className="max-w-32 self-center"
+                        className={`max-w-32 self-center capitalize`}
                         type="submit"
+                        disabled={modalContent.type ? true : false}
                     >
-                        Submit
+                        {modalContent.type || 'Submit'}
                     </CustomButton>
                 </form>
             </div>

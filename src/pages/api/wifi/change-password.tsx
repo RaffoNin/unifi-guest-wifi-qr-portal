@@ -59,7 +59,7 @@ export default async function handler(
             newPassword
         );
 
-        return res.status(201).send('Password changed');
+        return res.status(201).send('Password changed to:' + ' ' + newPassword);
     } catch (error) {
         if (error instanceof AxiosError) {
             return res
