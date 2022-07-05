@@ -3,7 +3,7 @@ Creates a guest portal where users can see guests wifi settings with a QR code t
 
 **Only works if using Unifi Controller.**
 
-#Features 
+# Features 
   * See wifi password and share to guests via qr code or by copy pasting the text.
   * Change the guest wifi password with api or frontend.
 
