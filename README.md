@@ -2,9 +2,6 @@
 Creates a guest portal where users can see guests wifi settings with a QR code to easily join the network. 
 
 **Only works if using Unifi Controller.**
-<br>
-**Created using Next js and intended to be deployed locally with Docker**
-
 
 <img width="300" alt="Home-page-dark" src="https://user-images.githubusercontent.com/85386859/177271538-2034b43e-d491-4e78-a39d-fefa495bd0ca.png">              <img width="300" alt="Home-page-light" src="https://user-images.githubusercontent.com/85386859/177274460-f8f807e8-2b66-4917-b890-c2f3f37a7434.png">
 
