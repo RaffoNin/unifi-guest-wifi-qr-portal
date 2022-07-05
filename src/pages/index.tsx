@@ -155,7 +155,7 @@ const Home: NextPage<HomeProps> = ({...props}) => {
             </Head>
 
             <h1 className="text-slate-800 dark:text-slate-100 text-4xl font-semibold mb-10 font-mono">
-                Guest Wifi
+                {process.env.NEXT_PUBLIC_HEADER_NAME || 'Guest Wifi'}
             </h1>
 
             <div className="relative bg-slate-300 dark:bg-slate-700 px-5 shadow-xl py-12 h-[80vh] w-[90vw] max-w-[22rem] max-h-[33rem] flex flex-col justify-center items-center rounded-lg hover:scale-[1.02] transition-all overflow-auto">
