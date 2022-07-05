@@ -2,8 +2,8 @@ import {getReasonPhrase} from 'http-status-codes';
 import Link from 'next/link';
 import CustomButton from '../components/CustomButton';
 
-interface ErrorProps {
-    statusCode: number;
+export interface ErrorProps {
+    statusCode: number | null;
     errorMessage: string | null;
 }
 

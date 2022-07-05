@@ -9,66 +9,109 @@ import getSecurityProtocol from '../lib/unifi/getSecurityProtocol';
 import {unifi, unifiLogin} from '../services/unifi/config';
 import {IWlanSettings} from '../types/unifi/unifi-types';
 import getTailwindColor from '../lib/tailwind/getTailwindColor';
+import {PageError} from '../lib/error/error-constructor';
+import {AxiosError} from 'axios';
 
+// @ts-ignore
 export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
-    if (
-        !process.env.UNIFI_CONTROLLER_HOST ||
-        !process.env.UNIFI_CONTROLLER_PORT ||
-        !process.env.UNIFI_CONTROLLER_USERNAME ||
-        !process.env.UNIFI_CONTROLLER_PASSWORD
-    ) {
-        console.error(`Incomplete env variales: 
+    let errorCode: number;
+    let errorMessage: string;
+
+    try {
+        if (
+            !process.env.UNIFI_CONTROLLER_HOST ||
+            !process.env.UNIFI_CONTROLLER_PORT ||
+            !process.env.UNIFI_CONTROLLER_USERNAME ||
+            !process.env.UNIFI_CONTROLLER_PASSWORD
+        ) {
+            errorCode = 503;
+            errorMessage = encodeURIComponent(`Incomplete env variables:
         host: ${process.env.UNIFI_CONTROLLER_HOST}
         port: ${process.env.UNIFI_CONTROLLER_PORT}
         username: ${process.env.UNIFI_CONTROLLER_USERNAME}
         password: ${process.env.UNIFI_CONTROLLER_PASSWORD}
         `);
 
-        throw new Error(`Incomplete env variales: 
-        host: ${process.env.UNIFI_CONTROLLER_HOST}
-        port: ${process.env.UNIFI_CONTROLLER_PORT}
-        username: ${process.env.UNIFI_CONTROLLER_USERNAME}
-        password: ${process.env.UNIFI_CONTROLLER_PASSWORD}
-        `);
-    }
+            throw new PageError(errorCode, errorMessage);
+        }
 
-    if (!process.env.UNIFI_GUEST_NETWORK_ID) {
+        if (!process.env.UNIFI_SELECTED_NETWORK_ID) {
+            return {
+                props: {},
+                redirect: {
+                    destination: '/list-wifi-id',
+                    permanent: true,
+                },
+            };
+        }
+
+        await unifiLogin();
+        const guestWifiState: IWlanSettings[] = await unifi.getWLanSettings(
+            process.env.UNIFI_SELECTED_NETWORK_ID
+        );
+
+        if (guestWifiState.length === 0) {
+            errorCode = 500;
+            errorMessage = encodeURIComponent(
+                `Wifi code with ID: ${process.env.UNIFI_SELECTED_NETWORK_ID} could not be found`
+            );
+
+            throw new PageError(errorCode, errorMessage);
+        }
+
+        if (guestWifiState.length > 1) {
+            errorCode = 500;
+            errorMessage = encodeURIComponent(
+                `Wifi code with ID: ${process.env.UNIFI_SELECTED_NETWORK_ID} has conflicting IDs with the Unifi Controller. Check unifi controller or correct the UNIFI_SELECTED_NETWORK_ID env variable`
+            );
+
+            throw new PageError(errorCode, errorMessage);
+        }
+
         return {
-            props: {},
+            props: {
+                guestWifiCredentials: {
+                    networkName: guestWifiState[0].name,
+                    password: guestWifiState[0].x_passphrase,
+                    isHidden: guestWifiState[0].hide_ssid,
+                    securityProtocol: guestWifiState[0].security,
+                },
+            },
+        };
+    } catch (error) {
+        if (error instanceof AxiosError) {
+            errorCode = 502;
+            errorMessage = 'Could not login to Unifi Controller';
+
+            console.error(`${errorCode}: ${errorMessage}`);
+            return {
+                redirect: {
+                    destination: `/error?statusCode=${errorCode}&errorMessage=${errorMessage}`,
+                },
+                props: {},
+            };
+        }
+
+        if (error instanceof PageError) {
+            errorCode = error.errorCode;
+            errorMessage = error.errorMessage;
+
+            console.error(`${errorCode}: ${errorMessage}`);
+            return {
+                redirect: {
+                    destination: `/error?statusCode=${errorCode}&errorMessage=${errorMessage}`,
+                },
+                props: {},
+            };
+        }
+
+        console.error(`${error}`);
+        return {
             redirect: {
-                destination: '/list-wifi-id',
-                permanent: true,
+                destination: `/error?statusCode=${500}&errorMessage=${error}`,
             },
         };
     }
-
-    await unifiLogin();
-    const guestWifiState: IWlanSettings[] = await unifi.getWLanSettings(
-        process.env.UNIFI_GUEST_NETWORK_ID
-    );
-
-    if (guestWifiState.length === 0) {
-        throw new Error(
-            `Wifi code with ID: ${process.env.UNIFI_GUEST_NETWORK_ID} could not be found`
-        );
-    }
-
-    if (guestWifiState.length > 1) {
-        throw new Error(
-            `Wifi code with ID: ${process.env.UNIFI_GUEST_NETWORK_ID} has conflicting IDs with the Unifi Controller. Check unifi controller`
-        );
-    }
-
-    return {
-        props: {
-            guestWifiCredentials: {
-                networkName: guestWifiState[0].name,
-                password: guestWifiState[0].x_passphrase,
-                isHidden: guestWifiState[0].hide_ssid,
-                securityProtocol: guestWifiState[0].security,
-            },
-        },
-    };
 };
 
 type HomeProps = {

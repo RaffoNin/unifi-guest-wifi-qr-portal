@@ -1,35 +1,43 @@
+import {AxiosError} from 'axios';
 import {GetServerSideProps} from 'next';
 import React, {useMemo, useState} from 'react';
 import TextLabel from '../components/TextLabel';
+import {PageError} from '../lib/error/error-constructor';
 import {unifi, unifiLogin} from '../services/unifi/config';
 import {IWlanSettings} from '../types/unifi/unifi-types';
 
+// @ts-ignore
 export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
-    if (
-        !process.env.UNIFI_CONTROLLER_HOST ||
-        !process.env.UNIFI_CONTROLLER_PORT ||
-        !process.env.UNIFI_CONTROLLER_USERNAME ||
-        !process.env.UNIFI_CONTROLLER_PASSWORD
-    ) {
-        throw new Error(`Incomplete env variales: 
-        host: ${process.env.UNIFI_CONTROLLER_HOST}
-        port: ${process.env.UNIFI_CONTROLLER_PORT}
-        username: ${process.env.UNIFI_CONTROLLER_USERNAME}
-        password: ${process.env.UNIFI_CONTROLLER_PASSWORD}
-        `);
-    }
-
-    if (process.env.UNIFI_GUEST_NETWORK_ID) {
-        return {
-            props: {},
-            redirect: {
-                destination: '/',
-                permanent: true,
-            },
-        };
-    }
+    let errorCode: number;
+    let errorMessage: string;
 
     try {
+        if (
+            !process.env.UNIFI_CONTROLLER_HOST ||
+            !process.env.UNIFI_CONTROLLER_PORT ||
+            !process.env.UNIFI_CONTROLLER_USERNAME ||
+            !process.env.UNIFI_CONTROLLER_PASSWORD
+        ) {
+            errorCode = 503;
+            errorMessage = encodeURIComponent(`Incomplete env variables: 
+            host: ${process.env.UNIFI_CONTROLLER_HOST}
+            port: ${process.env.UNIFI_CONTROLLER_PORT}
+            username: ${process.env.UNIFI_CONTROLLER_USERNAME}
+            password: ${process.env.UNIFI_CONTROLLER_PASSWORD}
+            `);
+            throw new PageError(errorCode, errorMessage);
+        }
+
+        if (process.env.UNIFI_SELECTED_NETWORK_ID) {
+            return {
+                props: {},
+                redirect: {
+                    destination: '/',
+                    permanent: true,
+                },
+            };
+        }
+
         await unifiLogin();
         const guestWifiState: IWlanSettings[] = await unifi.getWLanSettings();
         const formattedWifiArray = guestWifiState.map((wifi) => ({
@@ -44,7 +52,40 @@ export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
             },
         };
     } catch (error) {
-        throw new Error(`${error}`);
+        if (error instanceof AxiosError) {
+            errorCode = 502;
+            errorMessage = 'Could not login to Unifi Controller';
+
+            console.error(`${errorCode}: ${errorMessage}`);
+
+            return {
+                redirect: {
+                    destination: `/error?statusCode=${errorCode}&errorMessage=${errorMessage}`,
+                },
+                props: {},
+            };
+        }
+
+        if (error instanceof PageError) {
+            errorCode = error.errorCode;
+            errorMessage = error.errorMessage;
+
+            console.error(`${errorCode}: ${errorMessage}`);
+
+            return {
+                redirect: {
+                    destination: `/error?statusCode=${errorCode}&errorMessage=${errorMessage}`,
+                },
+                props: {},
+            };
+        }
+
+        console.error(`${error}`);
+        return {
+            redirect: {
+                destination: `/error?statusCode=${500}&errorMessage=${error}`,
+            },
+        };
     }
 };
 
@@ -74,7 +115,7 @@ const WifiIDList: React.FC<WifiIDListProps> = ({allWifiId}) => {
             <p className="text-sm text-center italic opacity-70 hover:opacity-100 mb-2 group">
                 Get guest wifi ID and add it to env variables as{' '}
                 <b className="group-hover:text-emerald-500 dark:group-hover:text-emerald-400">
-                    UNIFI_GUEST_NETWORK_ID
+                    UNIFI_SELECTED_NETWORK_ID
                 </b>
             </p>
             <div className="flex items-center gap-x-2 w-full mb-5 ">
