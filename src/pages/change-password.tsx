@@ -75,8 +75,9 @@ export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
         };
     } catch (error) {
         if (error instanceof AxiosError) {
-            errorCode = 502;
-            errorMessage = 'Could not login to Unifi Controller';
+            errorCode = error.response?.status || 502;
+            errorMessage =
+                error.response?.data || 'Could not log in to unifi controller';
 
             console.error(`${errorCode}: ${errorMessage}`);
             return {
@@ -161,12 +162,12 @@ const change: React.FC<ChangePasswordProps> = ({
     };
 
     useEffect(() => {
-        if (!modalContent) return;
+        if (!modalContent.type) return;
 
         const interval = setInterval(() => {
             setModalContent({
-                message: '',
                 type: null,
+                message: '',
             });
         }, 6000);
 
@@ -174,26 +175,18 @@ const change: React.FC<ChangePasswordProps> = ({
     }, [modalContent]);
 
     useEffect(() => {
+        if (!token) return;
         if (!newPassword) return;
 
         setModalContent({
             type: null,
             message: '',
         });
-    }, [newPassword]);
-
-    useEffect(() => {
-        if (!token) return;
-
-        setModalContent({
-            type: null,
-            message: '',
-        });
-    }, [token]);
+    }, [token, newPassword]);
 
     return (
         <div
-            className="relative font-mono min-h-screen h-full w-screen flex justify-center items-center flex-col bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-200 overflow-hidden
+            className="relative font-mono h-screen w-screen flex justify-center items-center flex-col bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-200 overflow-hidden
     "
         >
             <Head>
@@ -201,19 +194,7 @@ const change: React.FC<ChangePasswordProps> = ({
                 <meta name="Change Wifi Password" />
             </Head>
 
-            {modalContent.type && (
-                <div
-                    className={`absolute bottom-20 bg-slate-300 dark:bg-slate-700 px-5 shadow-xl py-3 max-w-[60vw] md:max-w-sm flex flex-col justify-center items-center rounded-lg hover:scale-[1.02] transition-all overflow-auto gap-y-4 animate-fade-in ${
-                        modalContent.type === 'error'
-                            ? 'text-red-500'
-                            : 'text-emerald-500'
-                    }`}
-                >
-                    {modalContent.message}
-                </div>
-            )}
-
-            <div className="relative bg-slate-300 dark:bg-slate-700 px-5 shadow-xl py-12 h-[80vh] w-[80vw] max-w-[20rem] max-h-[32rem] flex flex-col justify-center items-center rounded-lg hover:scale-[1.02] transition-all overflow-auto gap-y-4">
+            <div className="relative bg-slate-300 dark:bg-slate-700 px-5 shadow-xl py-12 h-[80vh] w-[80vw] max-w-[20rem] max-h-[34rem] flex flex-col justify-center items-center rounded-lg hover:scale-[1.02] transition-all overflow-auto gap-y-4">
                 <h1 className="mb-10 text-2xl font-semibold">
                     Change Password
                 </h1>
@@ -284,6 +265,17 @@ const change: React.FC<ChangePasswordProps> = ({
                         {modalContent.type || 'Submit'}
                     </CustomButton>
                 </form>
+                {modalContent.type && (
+                    <p
+                        className={`absolute self-center bottom-7 ${
+                            modalContent.type === 'error'
+                                ? 'text-red-500'
+                                : 'text-emerald-500'
+                        }`}
+                    >
+                        {modalContent.message}
+                    </p>
+                )}
             </div>
         </div>
     );
