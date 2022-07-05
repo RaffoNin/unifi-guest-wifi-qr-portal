@@ -31,11 +31,7 @@ export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
 
         if (process.env.UNIFI_SELECTED_NETWORK_ID) {
             return {
-                props: {},
-                redirect: {
-                    destination: '/',
-                    permanent: true,
-                },
+                notFound: true,
             };
         }
 

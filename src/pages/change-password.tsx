@@ -15,7 +15,15 @@ export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
 
     try {
         if (!process.env.CHANGE_WIFI_TOKEN) {
-            throw new PageError(404, '');
+            return {
+                notFound: true,
+            };
+        }
+
+        if (!process.env.UNIFI_SELECTED_NETWORK_ID) {
+            return {
+                notFound: true,
+            };
         }
 
         if (
@@ -32,10 +40,6 @@ export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
         password: ${process.env.UNIFI_CONTROLLER_PASSWORD}
         `);
             throw new PageError(errorCode, errorMessage);
-        }
-
-        if (!process.env.UNIFI_SELECTED_NETWORK_ID) {
-            throw new PageError(404, '');
         }
 
         await unifiLogin();
