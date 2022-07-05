@@ -114,14 +114,14 @@ export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
     }
 };
 
-type HomeProps = {
+interface HomeProps {
     guestWifiCredentials: {
         networkName: string;
         password: string;
         isHidden: boolean;
         securityProtocol: string;
     };
-};
+}
 
 const Home: NextPage<HomeProps> = ({...props}) => {
     const {

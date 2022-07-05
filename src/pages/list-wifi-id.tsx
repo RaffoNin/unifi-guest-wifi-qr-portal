@@ -1,5 +1,6 @@
 import {AxiosError} from 'axios';
 import {GetServerSideProps} from 'next';
+import Head from 'next/head';
 import React, {useMemo, useState} from 'react';
 import TextLabel from '../components/TextLabel';
 import {PageError} from '../lib/error/error-constructor';
@@ -40,6 +41,7 @@ export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
 
         await unifiLogin();
         const guestWifiState: IWlanSettings[] = await unifi.getWLanSettings();
+
         const formattedWifiArray = guestWifiState.map((wifi) => ({
             name: wifi.name,
             id: wifi._id,
@@ -111,6 +113,10 @@ const WifiIDList: React.FC<WifiIDListProps> = ({allWifiId}) => {
 
     return (
         <div className="font-mono min-h-screen h-full w-screen flex justify-center items-center flex-col bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-200 gap-y-5 px-10  py-10 overflow-y-auto">
+            <Head>
+                <title>Wifi IDs</title>
+                <meta name="All wifi networks and their IDs" />
+            </Head>
             <h1 className="text-4xl font-semibold mb-10">Wifi IDs</h1>
             <p className="text-sm text-center italic opacity-70 hover:opacity-100 mb-2 group">
                 Get guest wifi ID and add it to env variables as{' '}
