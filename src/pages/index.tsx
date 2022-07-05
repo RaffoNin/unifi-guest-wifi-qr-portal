@@ -80,8 +80,9 @@ export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
         };
     } catch (error) {
         if (error instanceof AxiosError) {
-            errorCode = 502;
-            errorMessage = 'Could not login to Unifi Controller';
+            errorCode = error.response?.status || 502;
+            errorMessage =
+                error.response?.data || 'Could not log in to unifi controller';
 
             console.error(`${errorCode}: ${errorMessage}`);
             return {
