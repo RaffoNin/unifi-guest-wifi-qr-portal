@@ -9,7 +9,7 @@ export default async function handler(
     try {
         await unifiLogin();
         const guestWifiState: IWlanSettings[] = await unifi.getWLanSettings(
-            process.env.UNIFI_GUEST_NETWORK_ID
+            process.env.UNIFI_SELECTED_NETWORK_ID
         );
 
         if (guestWifiState.length === 0) {
