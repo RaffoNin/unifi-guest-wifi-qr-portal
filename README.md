@@ -1,34 +1,51 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Unifi Wifi Info Portal
+Creates a guest portal where users can see guests wifi settings with a QR code to easily join the network. 
+
+**Only works if using Unifi Controller.**
+<br>
+**Created using Next js and intended to be deployed locally with Docker**
+
+
+<img width="300" alt="Home-page-dark" src="https://user-images.githubusercontent.com/85386859/177271538-2034b43e-d491-4e78-a39d-fefa495bd0ca.png">              <img width="300" alt="Home-page-light" src="https://user-images.githubusercontent.com/85386859/177274460-f8f807e8-2b66-4917-b890-c2f3f37a7434.png">
+
+## Env variables 
+  | Env varibale  | Required | Default Value | Notes
+  | ------------- | ------------- | ------------- | ------------- |
+  | UNIFI_CONTROLLER_HOST  | true  | **none** | 
+  | UNIFI_CONTROLLER_PORT  | true  | **none** |
+  | UNIFI_CONTROLLER_USERNAME  | true  | **none** |
+  | UNIFI_CONTROLLER_PASSWORD  | true  | **none** |
+  | UNIFI_SELECTED_NETWORK_ID  | false  | **none** | *Opens a portal with wifi networks and their IDs if not provided*
+  | NEXT_PUBLIC_HEADER_NAME  | false  | **Guest Wifi** | 
 
 ## Getting Started
 
-First, run the development server:
+### Docker
+1. Create a docker container with this image and set the env variables listed above: 
+      * Docker run running on port **3030** example:
+      ~~~~
+      docker run -p 3030:3000 -e UNIFI_CONTROLLER_HOST=* -e UNIFI_CONTROLLER_PORT=* -e UNIFI_CONTROLLER_USERNAME=* 
+      -e UNIFI_CONTROLLER_PASSWORD=* -e UNIFI_SELECTED_NETWORK_ID=* nextjs-home-wifi:latest
+      ~~~~
+      
+2. Next steps will depend if you have already set the **UNIFI_SELECTED_NETWORK_ID** env variable or not.
+    * **If with UNIFI_SELECTED_NETWORK_ID**: 
+        * Open site on port 3030 or any port specified, and the index page ("/") will show the wifi info with the QR code.
+    * **If without UNIFI_SELECTED_NETWORK_ID**: 
+        * Open site and get, and the index page will show a list of all the wifi networks with their IDs.
+        
+          <img width="300" alt="Wifi ID List-dark" src="https://user-images.githubusercontent.com/85386859/177272225-e94074e5-5520-48f1-b814-75cf95136899.png"><img width="300" alt="Wifi ID List-light" src="https://user-images.githubusercontent.com/85386859/177274444-aef078a3-1676-4b92-a908-9c46f21f669b.png">
 
-```bash
-npm run dev
-# or
-yarn dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+        * Select the wifi, copy its ID, and set the ID as the **UNIFI_SELECTED_NETWORK_ID**.
+        * Recreate image with the new env variable, and the index page ("/") will show the wifi info with the QR code.
+     
+### Running locally 
+1. Open the folder directory with terminal.
+2. Create a **.env** file at root and insert the environmental variables mentioned above.
+3. Run **"yarn build"**
+4. Run **"yarn start"**
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
-
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
-
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## Built with
+  *  Next js for frontend and the backend
+  *  node-unifi package (https://github.com/jens-maus/node-unifi) to get the unifi wifi credentials.
