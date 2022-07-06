@@ -172,7 +172,9 @@ const Home: NextPage<HomeProps> = ({...props}) => {
     return (
         <div className="font-mono min-h-screen h-full w-screen flex justify-center items-center flex-col bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-200 overflow-hidden">
             <Head>
-                <title>Guest Wifi</title>
+                <title>
+                    {process.env.NEXT_PUBLIC_HEADER_NAME || 'Guest Wifi'}
+                </title>
                 <meta name="Guest wifi info" />
             </Head>
 
