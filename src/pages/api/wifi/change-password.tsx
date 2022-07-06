@@ -1,6 +1,6 @@
 import {AxiosError} from 'axios';
 import type {NextApiRequest, NextApiResponse} from 'next';
-import {unifi, unifiLogin} from '../../../services/unifi/config';
+import {unifi, unifiLogin, unifiLogout} from '../../../services/unifi/config';
 
 export default async function handler(
     req: NextApiRequest,
@@ -68,5 +68,7 @@ export default async function handler(
         }
 
         return res.status(500).json(error);
+    } finally {
+        unifiLogout();
     }
 }

@@ -6,7 +6,7 @@ import TextLabel from '../components/TextLabel';
 import useDarkMode from '../custom-hooks/useDarkMode';
 import generateQRValueFromWifiCredential from '../lib/unifi/generateQRValueFromWifiCredential';
 import getSecurityProtocol from '../lib/unifi/getSecurityProtocol';
-import {unifi, unifiLogin} from '../services/unifi/config';
+import {unifi, unifiLogin, unifiLogout} from '../services/unifi/config';
 import {IWlanSettings} from '../types/unifi/unifi-types';
 import getTailwindColor from '../lib/tailwind/getTailwindColor';
 import {PageError} from '../lib/error/error-constructor';
@@ -133,6 +133,8 @@ export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
                 destination: `/error?statusCode=${500}&errorMessage=${error}`,
             },
         };
+    } finally {
+        unifiLogout();
     }
 };
 
