@@ -1,17 +1,17 @@
+import {AxiosError} from 'axios';
+import isReachable from 'is-reachable';
 import type {GetServerSideProps, NextPage} from 'next';
 import Head from 'next/head';
 import {useMemo} from 'react';
 import QRCode from 'react-qr-code';
 import TextLabel from '../components/TextLabel';
 import useDarkMode from '../custom-hooks/useDarkMode';
+import {PageError} from '../lib/error/error-constructor';
+import getTailwindColor from '../lib/tailwind/getTailwindColor';
 import generateQRValueFromWifiCredential from '../lib/unifi/generateQRValueFromWifiCredential';
 import getSecurityProtocol from '../lib/unifi/getSecurityProtocol';
-import {unifi, unifiLogin, unifiLogout} from '../services/unifi/config';
+import {unifi, unifiLogin} from '../services/unifi/config';
 import {IWlanSettings} from '../types/unifi/unifi-types';
-import getTailwindColor from '../lib/tailwind/getTailwindColor';
-import {PageError} from '../lib/error/error-constructor';
-import {AxiosError} from 'axios';
-import isReachable from 'is-reachable';
 
 // @ts-ignore
 export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
@@ -133,8 +133,6 @@ export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
                 destination: `/error?statusCode=${500}&errorMessage=${error}`,
             },
         };
-    } finally {
-        unifiLogout();
     }
 };
 

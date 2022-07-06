@@ -5,7 +5,7 @@ import Head from 'next/head';
 import React, {useMemo, useState} from 'react';
 import TextLabel from '../components/TextLabel';
 import {PageError} from '../lib/error/error-constructor';
-import {unifi, unifiLogin, unifiLogout} from '../services/unifi/config';
+import {unifi, unifiLogin} from '../services/unifi/config';
 import {IWlanSettings} from '../types/unifi/unifi-types';
 
 // @ts-ignore
@@ -106,8 +106,6 @@ export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
                 destination: `/error?statusCode=${500}&errorMessage=${error}`,
             },
         };
-    } finally {
-        unifiLogout();
     }
 };
 
