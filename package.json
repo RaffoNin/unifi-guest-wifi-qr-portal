@@ -5,7 +5,7 @@
     "scripts": {
         "dev": "next dev",
         "build": "next build",
-        "docker-build": "docker build . -t nextjs-home-wifi",
+        "docker-build": "docker build . -t unifi-guest-wifi-qr-portal",
         "start": "next start",
         "lint": "next lint",
         "lint-fix": "eslint --fix --ext .js,.jsx,.ts,.tsx ."
