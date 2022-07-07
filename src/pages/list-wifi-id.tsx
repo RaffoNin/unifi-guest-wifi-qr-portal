@@ -34,12 +34,8 @@ export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
             };
         }
 
-        const guestWifiState: IWlanSettings[] = (
-            await unifi.list_wlanconf()
-        ).data.filter(
-            (wifi: IWlanSettings) =>
-                wifi._id === process.env.UNIFI_SELECTED_NETWORK_ID
-        );
+        const guestWifiState: IWlanSettings[] = (await unifi.list_wlanconf())
+            .data;
 
         const formattedWifiArray = guestWifiState.map((wifi) => ({
             name: wifi.name,
