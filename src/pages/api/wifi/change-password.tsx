@@ -1,6 +1,6 @@
 import {AxiosError} from 'axios';
 import type {NextApiRequest, NextApiResponse} from 'next';
-import {unifi, unifiLogin, unifiLogout} from '../../../services/unifi/config';
+import {unifi, unifiLogout} from '../../../services/unifi/config';
 
 export default async function handler(
     req: NextApiRequest,
@@ -53,8 +53,7 @@ export default async function handler(
     }
 
     try {
-        await unifiLogin();
-        await unifi.setWLanSettings(
+        await unifi.set_wlansettings(
             process.env.UNIFI_SELECTED_NETWORK_ID,
             newPassword
         );

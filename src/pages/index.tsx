@@ -1,5 +1,3 @@
-import {AxiosError} from 'axios';
-import isReachable from 'is-reachable';
 import type {GetServerSideProps, NextPage} from 'next';
 import Head from 'next/head';
 import {useMemo} from 'react';
@@ -10,7 +8,7 @@ import {PageError} from '../lib/error/error-constructor';
 import getTailwindColor from '../lib/tailwind/getTailwindColor';
 import generateQRValueFromWifiCredential from '../lib/unifi/generateQRValueFromWifiCredential';
 import getSecurityProtocol from '../lib/unifi/getSecurityProtocol';
-import {unifi, unifiLogin} from '../services/unifi/config';
+import {unifi} from '../services/unifi/config';
 import {IWlanSettings} from '../types/unifi/unifi-types';
 
 // @ts-ignore
@@ -46,20 +44,11 @@ export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
             };
         }
 
-        if (
-            (await isReachable(
-                `${process.env.UNIFI_CONTROLLER_HOST}:${process.env.UNIFI_CONTROLLER_PORT}`
-            )) === false
-        ) {
-            throw new PageError(
-                502,
-                'Could not access host. Check env variable or firewall.'
-            );
-        }
-
-        await unifiLogin();
-        const guestWifiState: IWlanSettings[] = await unifi.getWLanSettings(
-            process.env.UNIFI_SELECTED_NETWORK_ID
+        const guestWifiState: IWlanSettings[] = (
+            await unifi.list_wlanconf()
+        ).data.filter(
+            (wifi: IWlanSettings) =>
+                wifi._id === process.env.UNIFI_SELECTED_NETWORK_ID
         );
 
         if (guestWifiState.length === 0) {
@@ -91,29 +80,6 @@ export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
             },
         };
     } catch (error) {
-        if (error instanceof AxiosError) {
-            if (error.code === 'ECONNREFUSED') {
-                errorCode = 502;
-                errorMessage =
-                    'Could not access host. Check env variable or firewall.';
-            } else {
-                errorCode = error.response?.status || 502;
-                errorMessage = error.response?.data
-                    ? typeof error.response.data === 'object'
-                        ? JSON.stringify(error.response.data)
-                        : error.response.data
-                    : 'Could not log in to unifi controller';
-            }
-
-            console.error(`${errorCode}: ${errorMessage}`);
-            return {
-                redirect: {
-                    destination: `/error?statusCode=${errorCode}&errorMessage=${errorMessage}`,
-                },
-                props: {},
-            };
-        }
-
         if (error instanceof PageError) {
             errorCode = error.errorCode;
             errorMessage = error.errorMessage;
@@ -127,12 +93,14 @@ export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
             };
         }
 
-        console.error(`${error}`);
+        console.error(`${JSON.stringify(error)}`);
         return {
             redirect: {
                 destination: `/error?statusCode=${500}&errorMessage=${error}`,
             },
         };
+    } finally {
+        unifi.logout();
     }
 };
 
