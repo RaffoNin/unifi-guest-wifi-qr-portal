@@ -99,8 +99,6 @@ export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
                 destination: `/error?statusCode=${500}&errorMessage=${error}`,
             },
         };
-    } finally {
-        unifi.logout();
     }
 };
 
