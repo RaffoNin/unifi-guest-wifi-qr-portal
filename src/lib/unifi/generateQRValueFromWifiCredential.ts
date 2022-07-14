@@ -10,9 +10,9 @@ const generateQRValueFromWifiCredential = (
 
     return `WIFI:T:${
         isTherePassword ? 'nopass' : securityProtocol
-    };S:${wifiName};P:${isTherePassword ? '' : wifiPassword};H:${
-        hidden ? 'true' : ''
-    };`;
+    };S:${wifiName};P:${isTherePassword ? '' : wifiPassword};${
+        hidden ? 'H:true;;' : ';'
+    }`;
 };
 
 export default generateQRValueFromWifiCredential;
