@@ -7,7 +7,7 @@ export const unifi = Unifi({
     baseUrl: `https://${process.env.UNIFI_CONTROLLER_HOST}:${process.env.UNIFI_CONTROLLER_PORT}`,
     username: process.env.UNIFI_CONTROLLER_USERNAME,
     password: process.env.UNIFI_CONTROLLER_PASSWORD,
-    debug: process.env.DEBUG || false, // More debug of the API (uses the debug module)
+    debug: process.env.DEBUG?.toLowerCase() === 'true' ? true : false, // More debug of the API (uses the debug module)
     // debugNet: true, // Debug of the network requests (uses request module)
 });
 
