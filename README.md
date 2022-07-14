@@ -69,8 +69,8 @@ Creates a guest portal where users can see guests wifi settings with a QR code t
         <img width="300" alt="Screen Shot 2022-07-05 at 10 12 26 PM" src="https://user-images.githubusercontent.com/85386859/177348233-fe5bd915-8a38-48d5-b8a2-4cac053882ff.png"> <img width="300" alt="Screen Shot 2022-07-05 at 10 13 55 PM" src="https://user-images.githubusercontent.com/85386859/177348544-f726a7eb-25ea-4c00-89a8-3e1ba77ea703.png">
 
 ## Built with
-  *  Next js for frontend and the backend
-  *  node-unifi package (https://github.com/jens-maus/node-unifi) to get the unifi wifi credentials.
-  * Tailwind css for styling
+  * **Next.js** for frontend and the backend
+  * **Node-unifiapi** (https://github.com/delian/node-unifiapi) to get the unifi wifi credentials.
+  * **Tailwind** css for styling
 
           
