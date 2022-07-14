@@ -19,6 +19,7 @@ Creates a guest portal where users can see guests wifi settings with a QR code t
   | UNIFI_SELECTED_NETWORK_ID  | false  | **none** | *Opens a portal with wifi networks and their IDs if not provided*
   | NEXT_PUBLIC_HEADER_NAME  | false  | **Guest Wifi** | 
   | CHANGE_WIFI_TOKEN | false | **none** | **enables wifi password change ui and api if set**
+  | DEBUG | false | false |
 
 ## Getting Started
 
