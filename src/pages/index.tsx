@@ -69,6 +69,15 @@ export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
             throw new PageError(errorCode, errorMessage);
         }
 
+        // In case the wifi security protocol is unknown
+        try {
+            getSecurityProtocol(guestWifiState[0].security);
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new PageError(500, `${error.message}`);
+            }
+        }
+
         return {
             props: {
                 guestWifiCredentials: {
@@ -112,6 +121,8 @@ interface HomeProps {
 }
 
 const Home: NextPage<HomeProps> = ({...props}) => {
+    const [isDarkMode] = useDarkMode();
+
     const {
         guestWifiCredentials: {
             isHidden,
@@ -124,7 +135,6 @@ const Home: NextPage<HomeProps> = ({...props}) => {
     const securityProtocolConverted = useMemo(() => {
         return getSecurityProtocol(securityProtocol);
     }, [securityProtocol]);
-    const [isDarkMode] = useDarkMode();
 
     const qrValue = useMemo(() => {
         return generateQRValueFromWifiCredential(
